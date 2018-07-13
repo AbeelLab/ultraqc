@@ -1,0 +1,4 @@
+%GC
+Avg_coverage	3
+Mapped_reads_pct	2
+Duplicates_pct	4

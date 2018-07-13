@@ -1,0 +1,62 @@
+cache:
+  paths:
+    - .m2/repository/
+    - target/
+
+build:node:
+
+  image: node:8.11.2
+  
+  stage: build
+  variables:
+    MYSQL_DATABASE: ultraqc
+    MYSQL_ROOT_PASSWORD: root
+  services:
+    - mysql:5.5
+    - node:8.11.2
+  before_script:
+    - cd server
+  script:
+    - npm install
+    - "echo '{\"host\": \"mysql\",\"user\": \"root\",\"password\": \"root\",\"database\": \"ultraqc\"}' > auth.json"
+    - node app.js -build-database
+    
+test:jsTest:
+  stage: test
+  
+  image: node:8.11.2
+  
+  before_script:
+    - cd server
+  
+  script:
+    - npm install
+    - npm install --global mocha
+    - mocha ./tests/
+    
+build:java:
+
+  image: maven:latest
+  
+  services:
+    - selenium/standalone-chrome:latest
+
+  stage: build
+  script:
+    - mvn clean
+    - mvn install
+    - mvn compile
+
+test:javaTest:
+  stage: test
+  
+  image: maven:latest
+  
+  script:
+    - mvn clean
+    - mvn install
+    - mvn verify
+    - cat target/site/jacoco/index.html
+  artifacts:
+    paths:
+      - target/site/jacoco/

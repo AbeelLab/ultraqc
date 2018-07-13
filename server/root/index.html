@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>UltraQC Report</title>
+		<script src="js/lib/jquery-3.3.1.min.js"></script>
+		<script src="js/lib/bootstrap.bundle.min.js"></script>
+		<script src="js/lib/highcharts.js"></script>
+		<!-- Boost breaks arearange, temporarily disabled-->
+		<!--<script src="js/lib/highcharts.boost.js"></script>-->
+		<script src="js/lib/highcharts.more.js"></script>
+		<script src="js/lib/bootstrap-table.js"></script>
+		<script src="js/lib/bootstrap-table-filter-control.js"></script>
+		<script src="js/lib/ion.rangeSlider.min.js"></script>
+		
+		<script src="js/table-formatter.js"></script>
+		<script src="js/chart-builder.js"></script>
+		<script src="js/main.js"></script>
+		<script src="js/util.js"></script>
+		
+		<script src="client-config.js"></script>
+		
+		<link rel="stylesheet" type="text/css" href="css/lib/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="css/lib/bootstrap-table.css">
+		<link rel="stylesheet" type="text/css" href="css/lib/bootstrap-table-filter-control.css">
+		<link rel="stylesheet" type="text/css" href="css/lib/normalize.css">
+		<link rel="stylesheet" type="text/css" href="css/style.css">
+	</head>
+	<body>		
+	
+		<div class="row bottom-margin" style="display: none;" id="bar_template">
+			<div class="col-4">
+				<div class="progress">
+				  <div class="progress-bar bg-success" quality="GOD" role="progressbar"></div>
+				  <div class="progress-bar bg-warning" quality="AVG" role="progressbar"></div>
+				  <div class="progress-bar bg-danger" quality="BAD" role="progressbar"></div>
+				</div>
+			</div>
+			<div class="col-4">
+				<input type="search" class="filter form-control"></input>
+			</div>
+			<div class="col-1">
+				<button class="btn filter-clear">✕</button>
+			</div>
+		</div>
+		
+		<div class="modal fade filter-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="container">
+						<div class="row">
+							<div class="col-md-12"><h1 class="text-center">Filter options</h1></div>
+							
+							<div class="col-md-6">
+								<select class="form-control select-metric">
+								</select>
+							</div>
+							<div class="col-md-6 slider"></div>
+						</div>
+						<div class="row padding-top padding-bottom justify-content-center">
+							<div class="col-md-2"><button class="btn btn-block btn-danger text-center">Clear</button></div>
+							<div class="col-md-2"><button class="btn btn-block btn-success text-center">Save</button></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="modal fade help-modal" tabindex="-1" role="dialog" id="helpModal" aria-hidden="true">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="container">
+						<div class="row">
+							<div class="col-md-12"><h1 class="text-center">UltraQC v1.0 Information</h1></div>
+							<div class="col-md-10 offset-md-1">
+								Below is a list of the main functionality of UltraQC.
+								<br />
+								<br />
+								<div class="alert alert-info">
+									A video demonstrating the application functionality <a href="https://youtu.be/2-cnOVaSxXY">can be found here.</a>
+								</div>
+
+								<h3>Table</h3>
+								<ul>
+									<li>Filter and order by metric warnings or errors.</li>
+									<li>Easily update the metric classification boundaries using an intuitive UI.</li>
+									<li>Change the historic data by specificying a custom species, datas and other things.</li>
+									<li>Filter and order in the sample table to find specific samples.</li>
+									<li>Click on a part of the coloured "Quality" bar to select all metrics that fit in that particular category. </li>
+									<li>Samples will be marked "bad" if they have at least one bad metric, and "average" if they have at least one average metric, but no bad ones. </li>
+									<li>Select samples from the sample table to display them in the graphs.</li>
+									<li>Click on a sample's metric badge to scroll to that metric.</li>
+									<li>Select all samples on the current page by pressing the "select all" checkbox.</li>
+									<li>Samples are grouped by both date and species.</li>
+									<li>Click on headers to sort the data by this particular field.</li>
+									<li>Export selected data using the download buttons.</li>
+								</ul>						
+								<h3>Graphs</h3>
+								<ul>
+									<li>everal metrics have been normalized to allow for better comparison.</li>
+									<li> Hover over the question mark button for detailed metric information.</li>
+									<li> Compare selected metrics with historic data looking at the grey historic average area.</li>
+									<li> Click on the bars top-left to hide particular groups.</li>
+									<li> Click on a line to select just that line.</li>
+									<li> Hold ctrl and click on multiple line to select/deselect a group.</li>
+									<li> Drag an area to zoom in on it.</li>
+								</ul>
+								
+								<p class="text-right"><small>Last updated: 2018 - 06 - 30</small></p>
+							</div>
+						</div>
+						<div class="row padding-top padding-bottom justify-content-center">
+							<div class="col-md-2"><button class="btn btn-block btn-dark text-center" data-dismiss="modal">Close</button></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="container-fluid">
+			<div class="row">
+				<nav class="col-md-2 d-none d-md-block bg-light sidebar">
+				  <div class="sidebar-sticky">
+					<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+					  <span>Tables</span>
+					  <a class="d-flex align-items-center text-muted" href="">
+						<span data-feather="plus-circle"></span>
+					  </a>
+					</h6>
+					
+					<ul class="nav flex-column mb-5" id="tableMenu">
+					  <li class="nav-item">
+						<a class="nav-link" href="#top">
+						  <span class="nav-title"> Sample Sets</span>
+						  <span data-feather="file-text"></span>
+						</a>
+					  </li>
+					  <li class="nav-item">
+						<a class="nav-link" href="#sampleTableAnchor">
+						  <span class="nav-title"> Individual Samples</span>
+						  <span data-feather="file-text"></span>
+						</a>
+					  </li>
+					</ul>
+					
+					<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+					  <span>Graphs</span>
+					  <a class="d-flex align-items-center text-muted" href="">
+						<span data-feather="plus-circle"></span>
+					  </a>
+					</h6>
+					
+					<ul class="nav flex-column mb-5" id="graphMenu">
+					  
+					</ul>
+					
+				  </div>
+				</nav>
+				
+				<li class="nav-item" id="templateGraphMenuItem" style="display: none;">
+					<a class="nav-link" href="">
+						<span class="nav-title"></span>
+						<span data-feather="file-text"></span>
+					</a>
+				</li>
+				
+			</div>
+		</div>
+		
+		<nav class="navbar navbar-expand-md navbar-dark bg-darker fixed-top">
+			<a class="navbar-brand" href="#top"><img height="40px" src="img/UltraQC_light.png"></a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-name="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<button style="margin-left: 20px;" class="btn btn-primary" data-toggle="modal" data-target="#helpModal">help</button>
+		
+			<div class="collapse navbar-collapse" id="navbarsExampleDefault">
+				<ul class="navbar-nav mr-auto"></ul>
+				<div class="navbar-text">v1.0</div>
+			</div>
+		</nav>
+
+	
+		<div style="margin-top: 56px;" class="col-10 offset-md-2">
+			<main class="col-12">
+				<div class="row justify-content-center">
+					<div class="col-4 title">
+						<div class="anchor" id="top"></div>
+						<h1 class="text-center">
+							<button type='button' class='btn btn-outline-primary btn-help' title="Table containing samplesets sorted on species, seqTech and date.">?</button>
+							Sample sets
+						</h1>
+					</div>
+				</div>
+				<div class="row justify-content-md-center">
+					<div class="col-xl-12">
+						<table id="table"
+							data-unique-id="key"
+							data-pagination="true"
+							data-side-pagination="server"
+							data-sort-name="Date"
+							data-sort-order="desc"
+							>
+							<thead>
+								<tr>
+									<th data-sortable="true" data-field="Species" data-placement="left" title="The Species of this sampleset.">Species</th>
+									<th data-sortable="true" data-field="SequencingTechnology" data-placement="left" title="The Sequencing Technology used for this sampleset.">Sequencing Technology</th>
+									<th data-sortable="true" data-field="Date" data-placement="left" title="The date at which the sampleset was recorded (yyyy-mm-dd).">Date</th>
+									<th data-sortable="true" data-field="Amount" data-placement="left" title="The number of samples in this sampleset.">Amount</th>
+									<th data-sortable="true" data-field="qualitySort" data-formatter="qualityCountFormatter" data-placement="left" title="The quality assigned to the samples in the sampleset.">Quality</th>
+									<th data-sortable="false" data-field="selectedSamples" data-formatter="selectedSampleFormatter" data-placement="left" title="Current selection of samples.">Selected</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+				</div>
+				<hr>
+				<div class="row justify-content-md-center">
+					<div class="col-md-3 title">
+						<div class="anchor" id="sampleTableAnchor"></div>
+					</div>
+				</div>
+				<div class="row justify-content-md-center">
+					<div class="col-xl-4 col-lg-12">
+						<div class="row">
+							<div class="col-12">
+								<h1 class="text-center">
+									<button type='button' class='btn btn-outline-primary btn-help' title="Controls for the current sample selection.">?</button>
+									Sample selection
+								</h1>
+								<table class="padded-table" style="margin: auto;">
+									<tr>
+										<td>Current selection:</td><td><span class="badge badge-secondary" id="selectedSamples">0</span></td></tr>
+									<tr>
+										<td>Download: </td>
+										<td>
+											<div id="download-buttons" class="btn-group">
+												<button class="btn btn-info" disabled id="download-json-btn">JSON</button>
+												<button class="btn btn-info" disabled id="download-csv-btn">CSV</button>
+											</div>
+										</td>
+									</tr> 
+									<tr><td></td><td><button class="btn btn-danger" disabled id="clear-btn">Clear selection</button></td></tr>
+								</table>					
+							</div>
+							<div class="col-12">
+								<h1 class="text-center">
+									<button type='button' class='btn btn-outline-primary btn-help' title="Use this tool to select the historic data to be used for comparison (the black line and grey area in the metrics).">?</button>
+									Historic data
+								</h1>
+								<form id="hist_form">
+									<table class="padded-table" style="width: 100%;">
+										<tbody>
+											<tr><td></td><td>Species:</td><td><select id="hist_species" class="form-control"></select></td></tr>
+											<tr><td></td><td>Sequencing tech:</td><td><select id="hist_seqtec" class="form-control"><option></option></select></td></tr>
+											<tr>
+												<td>
+													<a href="#" class='float-right btn-help' title="The percentage of samples to use (determines the size of the grey area).">?</a>
+												</td>
+												<td>Multiplier:</td>
+												<td >
+													<select id="hist_mult" class="form-control">
+														<option value="0.5">38%</option>
+														<option value="1.0">68%</option>
+														<option value="1.5">86%</option>
+														<option selected value="2.0">95%</option>
+														<option value="2.5">99%</option>
+													</select>
+												</td>
+											</tr>
+											<tr class="divide-above">
+												<td></td>
+												<td>Date (after):</td>
+												<td><input type="date" id="hist_date_from" class="form-control" value=""></td>
+											</tr>
+												<td></td>
+												<td>Date (before):</td>
+												<td><input type="date" id="hist_date_to" class="form-control" value=""></td>
+											</tr>
+										</tbody>
+									</table>
+									<script>
+										// load select menus for filtering
+										$.getJSON("api/distinct/species", (data) => {
+											data.forEach((el, index) => $("#hist_species").append("<option>" + el.species + "</option>"));
+										});
+										
+										$.getJSON("api/distinct/SequencingTechnology", (data) => {
+											data.forEach((el, index) => $("#hist_seqtec").append("<option>" + el.SequencingTechnology + "</option>"));
+										});
+									</script>
+								</form>
+							</div>
+						</div>
+					</div>
+					
+					<div class="col-xl-8 col-lg-12">			
+						<h1 class="text-center">
+							<button type='button' class='btn btn-outline-primary btn-help' title="Table containing all individual samples from a sampleset.">?</button>
+							Samples
+						</h1>
+						<script>
+							// build selection list for the error/warning filters
+							var metricFilter = {};
+							for (var key in config.metrics) {
+								metricFilter[key] = config.metrics[key].display
+							}
+						</script>
+						<div id="sampleTableContainer">
+							<table id="sampleTable" style="display: none;"
+								data-pagination="true"
+								data-side-pagination="server"
+								data-click-to-select="true"
+								data-maintain-selected="true"
+								data-unique-id="SampleName"
+								data-sort-name="score"
+								data-filter-control="true"
+								>
+								<thead>
+									<tr>
+										<th data-class="clickable" data-sortable="false" data-field="checkbox" data-checkbox="true"></th>
+										<th data-class="clickable" data-sortable="true" data-filter-control="input" data-field="SampleName" title="The name of the sample">Name</th>
+										<th data-class="clickable" data-sortable="true" data-filter-control="input" data-field="Coverage" title="Average target read coverage">Cov</th>
+										<th data-class="clickable" data-sortable="true" data-filter-control="input" data-field="Alignment" data-formatter="percentageFormatter" title="% mapped reads">Aln</th>
+										<th data-class="clickable" data-sortable="true" data-filter-control="input" data-field="Duplication" data-formatter="percentageFormatter" title="% duplicated reads">Dup</th>
+										<th data-class="clickable" data-sortable="true" data-filter-control="input" data-field="score" title="An aggregated score representing the number of warnings/errors">Score</th>
+										<th data-sortable="true" data-filter-control="select" data-field="avg" data-click-to-select="false" data-formatter="metricFormatterAvg" data-filter-data="var:metricFilter" title="The metrics which throw a warning" >Warnings</th>
+										<th data-sortable="true" data-filter-control="select" data-field="bad" data-click-to-select="false" data-formatter="metricFormatterBad" data-filter-data="var:metricFilter" title="The metrics which throw an error">Errors</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+					</div>
+				</div>
+				<hr>
+				<div class="container-fluid">
+					<div class="row" id="chartContainer">
+
+					</div>
+				</div>
+			</main>
+		</div>
+	</body>
+</html>

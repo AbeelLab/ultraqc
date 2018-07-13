@@ -1,0 +1,33 @@
+#Comment line like this should be ignored
+>>General data
+#col1	col2
+filename	test5
+>>END_MODULE
+>>Test Content
+#col1	col2
+420	1337
+>>END_MODULE
+>>Per Sequence GC Content
+#col1	col2
+1	-4000
+10	-2000
+100	-1000
+1000	-2000
+10000	-4000
+>>END_MODULE
+>>Per Sequence Quality Scores
+#col1	col2
+1	1
+>>END_MODULE
+>>Per Base Sequence Quality
+#col1	col2
+1	1
+>>END_MODULE
+>>Per Sequence GC Content
+#col1	col2
+1	1
+>>END_MODULE
+>>Sequence Length Distribution
+#col1	col2
+1	1
+>>END_MODULE

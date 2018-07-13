@@ -1,0 +1,17 @@
+{
+  "name": "ultraqc",
+  "version": "0.1.0",
+  "description": "UltraQC server",
+  "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "PL1"
+  },
+  "author": "PL1",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.3",
+    "mocha": "^5.2.0",
+    "mysql2": "^1.5.3"
+  }
+}

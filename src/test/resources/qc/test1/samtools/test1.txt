@@ -1,0 +1,5 @@
+# just a test file
+# this should be ignored
+# random Numbers. Use `grep ^RN | cut -f 2-` to extract this part.
+RN	1
+RN	6

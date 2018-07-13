@@ -1,0 +1,17 @@
+#Comment line like this should be ignored
+>>General data
+#col1	col2
+filename	test2
+>>END_MODULE
+>>Test Content
+#col1	col2
+420	1337
+>>END_MODULE
+>>Per Sequence GC Content
+#col1	col2
+1	0.1
+2	0.4
+3	0.5
+4	0.4
+5	0.1
+>>END_MODULE
